@@ -42,11 +42,13 @@ window.addEventListener('resize', () => {
 })
 
 const control = new OrbitControls(camera, renderer.domElement);
+control.enableDamping = true;
+control.autoRotate = true;
+control.dampingFactor = 0.01
 // Animation loop
 function animate() {
   requestAnimationFrame(animate)
-  cube.rotation.x += 0.01
-  cube.rotation.y += 0.01
+  cube.rotation.x -= 0.01
   control.update();
   renderer.render(scene, camera)
 }
