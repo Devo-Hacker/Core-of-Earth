@@ -196,26 +196,59 @@ window.addEventListener('resize', () => {
   labelRenderer.setSize(window.innerWidth, window.innerHeight)
 })
 
-function createLabel(text, className) {
+// ----- Labels (title + description) -----
+function createLabel(title, description, className) {
   const div = document.createElement('div')
   div.className = className
-  div.textContent = text
+
+  const titleEl = document.createElement('div')
+  titleEl.className = 'layer-label-title'
+  titleEl.textContent = title
+
+  const descEl = document.createElement('div')
+  descEl.className = 'layer-label-desc'
+  descEl.textContent = description
+
+  div.appendChild(titleEl)
+  div.appendChild(descEl)
+
   return new CSS2DObject(div)
 }
 
-const mantleLabel = createLabel('Mantle', 'layer-label')
+const crustLabel = createLabel(
+  'Crust',
+  '~35 km thick — solid rock, where we live',
+  'layer-label'
+)
+earth.add(crustLabel)
+crustLabel.position.set(0, 1.0, 0)
+
+const mantleLabel = createLabel(
+  'Mantle',
+  '~2,900 km thick — hot, slowly flowing rock',
+  'layer-label'
+)
 mantle.add(mantleLabel)
 mantleLabel.position.set(0, 0.85, 0)
 
-const outerCoreLabel = createLabel('Outer Core', 'layer-label')
+const outerCoreLabel = createLabel(
+  'Outer Core',
+  '~2,300 km thick — molten iron & nickel',
+  'layer-label'
+)
 outerCore.add(outerCoreLabel)
 outerCoreLabel.position.set(0, 0.55, 0)
 
-const innerCoreLabel = createLabel('Inner Core', 'layer-label')
+const innerCoreLabel = createLabel(
+  'Inner Core',
+  '~1,220 km radius — solid iron, ~5,400°C',
+  'layer-label'
+)
 innerCore.add(innerCoreLabel)
 innerCoreLabel.position.set(0, 0.2, 0)
 
 const layerLabels = [
+  { object: crustLabel, showAt: 0 },
   { object: mantleLabel, showAt: 0.15 },
   { object: outerCoreLabel, showAt: 0.5 },
   { object: innerCoreLabel, showAt: 0.8 },

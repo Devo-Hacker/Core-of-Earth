@@ -1,7 +1,15 @@
 @import "tailwindcss";
 .layer-label {
-  @apply text-white text-sm font-semibold px-2 py-1 rounded bg-black/50 backdrop-blur-sm;
+  @apply text-white px-3 py-1.5 rounded-lg bg-black/60 backdrop-blur-sm;
   pointer-events: none;
   white-space: nowrap;
   transition: opacity 0.4s ease;
+}
+
+.layer-label-title {
+  @apply text-sm font-bold;
+}
+
+.layer-label-desc {
+  @apply text-xs text-gray-300 mt-0.5;
 }
