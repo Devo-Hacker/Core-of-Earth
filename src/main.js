@@ -191,11 +191,31 @@ const sunLight = new THREE.DirectionalLight(0xffffff, 2)
 sunLight.position.set(5, 3, 5)
 scene.add(sunLight)
 
+// Sun
+const sunGeometry = new THREE.SphereGeometry(2.5, 64, 64)
+
+const sunMaterial = new THREE.MeshBasicMaterial({
+  color: 0xfff2b3
+})
+
+const sun = new THREE.Mesh(sunGeometry, sunMaterial)
+sun.position.copy(sunLight.position).multiplyScalar(18)
+scene.add(sun)
+
+const sunGlow = new THREE.PointLight(
+  0xfff2b3,
+  10,
+  150
+)
+
+sunGlow.position.copy(sun.position)
+scene.add(sunGlow)
+
 const fillLight = new THREE.DirectionalLight(0xffffff, 0.4)
 fillLight.position.set(-5, -2, -5)
 scene.add(fillLight)
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.25)
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.02)
 scene.add(ambientLight)
 
 const controls = new OrbitControls(camera, renderer.domElement)
