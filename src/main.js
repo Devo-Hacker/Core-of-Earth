@@ -120,7 +120,7 @@ const zoomState = {
 
 window.addEventListener('wheel', (event) => {
   const scrollSpeed = 0.002
-  zoomState.target += event.deltaY * scrollSpeed
+  zoomState.target -= event.deltaY * scrollSpeed
   zoomState.target = THREE.MathUtils.clamp(zoomState.target, zoomState.min, zoomState.max)
 })
 
