@@ -4,24 +4,60 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Earther</title>
+    <!-- Bring in a clean, cinematic font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;900&display=swap" rel="stylesheet">
   </head>
-  <body class="m-0 overflow-hidden bg-black">
+  <body class="m-0 overflow-hidden bg-black font-['Inter']">
     <div id="app"></div>
 
     <div id="hero-overlay" class="hero-overlay">
-      <div class="hero-top">
-        <p class="hero-eyebrow">— Interactive 3D Model —</p>
-        <h1 class="hero-title">EARTH</h1>
+      <div class="hero-top mt-8">
+        <p class="hero-eyebrow">— Interactive Spatial Model —</p>
+        <h1 class="hero-title">EARTHER</h1>
       </div>
-      <div class="hero-bottom">
-        <p class="hero-subtitle">Our pale blue dot</p>
-        <div class="hero-hint">Drag to move the model</div>
-        <div class="hero-scroll">
+      <div class="hero-bottom mb-8">
+        <p class="hero-subtitle">What are we in this multiverse?</p>
+        <div class="hero-hint backdrop-blur-md bg-white/5 border border-white/10 px-4 py-2 rounded-full">Drag to rotate the globe</div>
+        <div class="hero-scroll mt-6">
           <div class="scroll-mouse"><span></span></div>
-          <span class="hero-scroll-text">Scroll to see more</span>
+          <span class="hero-scroll-text">Initiate Descent</span>
         </div>
       </div>
     </div>
+
+    <!-- Spatial UI Story Panels -->
+    <div id="story-panel" class="story-panel">
+      <div class="story-card" data-stage="1">
+        <div class="spatial-card-inner">
+          <div class="card-glow"></div>
+          <h2>Crust</h2>
+          <p>The outermost layer — solid rock, 5 to 70 km thick depending on location. Everything you've ever seen or touched sits on this thin shell.</p>
+        </div>
+      </div>
+      <div class="story-card" data-stage="2">
+        <div class="spatial-card-inner">
+          <div class="card-glow"></div>
+          <h2>Mantle</h2>
+          <p>~2,900 km of hot, slowly flowing rock. It moves only centimeters per year, but that slow churn drives plate tectonics and volcanoes above.</p>
+        </div>
+      </div>
+      <div class="story-card" data-stage="3">
+        <div class="spatial-card-inner">
+          <div class="card-glow"></div>
+          <h2>Outer Core</h2>
+          <p>A ~2,300 km shell of molten iron and nickel. Its swirling motion generates Earth's magnetic field, which shields us from solar radiation.</p>
+        </div>
+      </div>
+      <div class="story-card" data-stage="4">
+        <div class="spatial-card-inner">
+          <div class="card-glow"></div>
+          <h2>Inner Core</h2>
+          <p>A solid iron ball, ~1,220 km in radius, at roughly 5,400°C — nearly as hot as the sun's surface, kept solid by immense pressure.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="story-progress" class="story-progress"></div>
 
     <script type="module" src="/src/main.js"></script>
   </body>
