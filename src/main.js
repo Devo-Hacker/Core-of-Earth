@@ -12,20 +12,26 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 )
-camera.position.z = 3
+camera.position.z = 6
 
 const renderer = new THREE.WebGLRenderer({ antialias: true })
 renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+renderer.domElement.style.position = 'fixed'
+renderer.domElement.style.inset = '0'
+renderer.domElement.style.zIndex = '0'
 document.getElementById('app').appendChild(renderer.domElement)
 renderer.localClippingEnabled = true
 
 const labelRenderer = new CSS2DRenderer()
 labelRenderer.setSize(window.innerWidth, window.innerHeight)
-labelRenderer.domElement.style.position = 'absolute'
+labelRenderer.domElement.style.position = 'fixed'
 labelRenderer.domElement.style.top = '0px'
+labelRenderer.domElement.style.zIndex = '5'
 labelRenderer.domElement.style.pointerEvents = 'none'
 document.body.appendChild(labelRenderer.domElement)
+
+const heroOverlay = document.getElementById('hero-overlay')
 
 const textureLoader = new THREE.TextureLoader()
 const earthTexture = textureLoader.load('/src/assets/8k_earth_daymap.jpg')
@@ -51,7 +57,6 @@ const mantleTexture = textureLoader.load('src/assets/Rock035.png')
 const outerCoreTexture = textureLoader.load('src/assets/Lava003.png')
 const innerCoreTexture = textureLoader.load('src/assets/Metal044B.png')
 
-// Mantle — hot solid rock, not metallic, fairly rough
 const mantleMaterial = new THREE.MeshStandardMaterial({
   map: mantleTexture,
   roughness: 0.9,
@@ -61,7 +66,6 @@ const mantleGeometry = new THREE.SphereGeometry(0.85, 64, 64)
 const mantle = new THREE.Mesh(mantleGeometry, mantleMaterial)
 earthGroup.add(mantle)
 
-// Outer Core — molten, glowing lava-like, slightly less rough (liquid-ish sheen)
 const outerCoreMaterial = new THREE.MeshStandardMaterial({
   map: outerCoreTexture,
   roughness: 0.6,
@@ -73,7 +77,6 @@ const outerCoreGeometry = new THREE.SphereGeometry(0.55, 64, 64)
 const outerCore = new THREE.Mesh(outerCoreGeometry, outerCoreMaterial)
 earthGroup.add(outerCore)
 
-// Inner Core — solid white-hot iron, high metalness, moderate roughness (matte finish)
 const innerCoreMaterial = new THREE.MeshStandardMaterial({
   map: innerCoreTexture,
   roughness: 0.5,
@@ -85,10 +88,13 @@ const innerCoreGeometry = new THREE.SphereGeometry(0.2, 64, 64)
 const innerCore = new THREE.Mesh(innerCoreGeometry, innerCoreMaterial)
 earthGroup.add(innerCore)
 
-const clipPlane = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0)
+// ----- Cutaway Wedge (two fixed planes forming a slice, like a pie cut) -----
+const clipPlaneA = new THREE.Plane(new THREE.Vector3(1, 0, 0), 0)
+const clipPlaneB = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0)
 
 ;[earthMaterial, mantleMaterial, outerCoreMaterial, innerCoreMaterial].forEach((mat) => {
-  mat.clippingPlanes = [clipPlane]
+  mat.clippingPlanes = [clipPlaneA, clipPlaneB]
+  mat.clipIntersection = true // only remove geometry where BOTH planes agree -> wedge shape
   mat.clipShadows = true
   mat.side = THREE.DoubleSide
 })
@@ -127,8 +133,8 @@ controls.autoRotate = true
 controls.autoRotateSpeed = 0.5
 
 const zoomState = {
-  current: 3,
-  target: 3,
+  current: 6,
+  target: 6,
   min: 0.5,
   max: 8,
   lerpFactor: 0.05,
@@ -140,7 +146,15 @@ window.addEventListener('wheel', (event) => {
   zoomState.target = THREE.MathUtils.clamp(zoomState.target, zoomState.min, zoomState.max)
 })
 
+// ----- lil-gui (hidden by default, press "h" to toggle) -----
 const gui = new GUI()
+gui.hide()
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'h') {
+    gui._hidden ? gui.show() : gui.hide()
+  }
+})
 
 const zoomFolder = gui.addFolder('Scroll Zoom')
 zoomFolder.add(zoomState, 'lerpFactor', 0.01, 0.2, 0.01).name('Smoothness')
@@ -170,6 +184,14 @@ const cutawaySettings = {
 cutawayFolder.add(cutawaySettings, 'cutStart', 1, 8, 0.1).name('Cut Start Distance')
 cutawayFolder.add(cutawaySettings, 'cutEnd', 0.1, 3, 0.1).name('Cut End Distance')
 
+const introSettings = {
+  start: 6,
+  end: 4.2,
+}
+const introFolder = gui.addFolder('Hero Intro')
+introFolder.add(introSettings, 'start', 3, 8, 0.1).name('Fade Start Distance')
+introFolder.add(introSettings, 'end', 1, 6, 0.1).name('Fade End Distance')
+
 const materialsFolder = gui.addFolder('Layer Materials')
 
 const earthMatFolder = materialsFolder.addFolder('Earth Surface')
@@ -196,7 +218,7 @@ window.addEventListener('resize', () => {
   labelRenderer.setSize(window.innerWidth, window.innerHeight)
 })
 
-// ----- Labels (title + description) -----
+// ----- Labels -----
 function createLabel(title, description, className) {
   const div = document.createElement('div')
   div.className = className
@@ -248,10 +270,10 @@ innerCore.add(innerCoreLabel)
 innerCoreLabel.position.set(0, 0.2, 0)
 
 const layerLabels = [
-  { object: crustLabel, showAt: 0 },
-  { object: mantleLabel, showAt: 0.15 },
-  { object: outerCoreLabel, showAt: 0.5 },
-  { object: innerCoreLabel, showAt: 0.8 },
+  { object: crustLabel, showAt: 0.6, progress: 'intro' },
+  { object: mantleLabel, showAt: 0.15, progress: 'cut' },
+  { object: outerCoreLabel, showAt: 0.5, progress: 'cut' },
+  { object: innerCoreLabel, showAt: 0.8, progress: 'cut' },
 ]
 
 function animate() {
@@ -272,11 +294,20 @@ function animate() {
     0,
     1
   )
-  clipPlane.constant = THREE.MathUtils.lerp(1, -0.2, cutProgress)
+  const cutDepth = THREE.MathUtils.lerp(1, -0.2, cutProgress)
+  clipPlaneA.constant = cutDepth
+  clipPlaneB.constant = cutDepth
 
-  layerLabels.forEach(({ object, showAt }) => {
-    const visible = cutProgress > showAt
-    object.element.style.opacity = visible ? '1' : '0'
+  const introProgress = THREE.MathUtils.clamp(
+    (introSettings.start - zoomState.current) / (introSettings.start - introSettings.end),
+    0,
+    1
+  )
+  heroOverlay.style.opacity = String(1 - introProgress)
+
+  layerLabels.forEach(({ object, showAt, progress }) => {
+    const p = progress === 'intro' ? introProgress : cutProgress
+    object.element.style.opacity = p > showAt ? '1' : '0'
   })
 
   controls.update()
