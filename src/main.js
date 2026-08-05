@@ -3,6 +3,12 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 import GUI from 'lil-gui'
 
+import earthDay from './assets/texture/8k_earth_daymap.jpg'
+import earthNight from './assets/texture/8k_earth_nightmap.jpg'
+import rockTexture from './assets/texture/Rock035.png'
+import lavaTexture from './assets/texture/Lava003.png'
+import metalTexture from './assets/texture/Metal044B.png'
+
 const scene = new THREE.Scene()
 
 const camera = new THREE.PerspectiveCamera(
@@ -26,8 +32,9 @@ const storyPanel = document.getElementById('story-panel')
 const storyProgressEl = document.getElementById('story-progress')
 
 const textureLoader = new THREE.TextureLoader()
-const earthTexture = textureLoader.load('/src/assets/8k_earth_daymap.jpg')
-const nightTexture = textureLoader.load('src/assets/8k_earth_nightmap.jpg')
+
+const earthTexture = textureLoader.load(earthDay)
+const nightTexture = textureLoader.load(earthNight)
 
 const earthGeometry = new THREE.SphereGeometry(1, 64, 64)
 const earthMaterial = new THREE.MeshStandardMaterial({
@@ -47,9 +54,9 @@ const earthGroup = new THREE.Group()
 scene.add(earthGroup)
 earthGroup.add(earth)
 
-const mantleTexture = textureLoader.load('src/assets/Rock035.png')
-const outerCoreTexture = textureLoader.load('src/assets/Lava003.png')
-const innerCoreTexture = textureLoader.load('src/assets/Metal044B.png')
+const mantleTexture = textureLoader.load(rockTexture)
+const outerCoreTexture = textureLoader.load(lavaTexture)
+const innerCoreTexture = textureLoader.load(metalTexture)
 
 const mantleMaterial = new THREE.MeshStandardMaterial({
   map: mantleTexture,
