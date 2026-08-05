@@ -2,6 +2,7 @@ import './style.css'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 import GUI from 'lil-gui'
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js'
 
 const scene = new THREE.Scene()
 
@@ -18,6 +19,13 @@ renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 document.getElementById('app').appendChild(renderer.domElement)
 renderer.localClippingEnabled = true
+
+const labelRenderer = new CSS2DRenderer()
+labelRenderer.setSize(window.innerWidth, window.innerHeight)
+labelRenderer.domElement.style.position = 'absolute'
+labelRenderer.domElement.style.top = '0px'
+labelRenderer.domElement.style.pointerEvents = 'none'
+document.body.appendChild(labelRenderer.domElement)
 
 const textureLoader = new THREE.TextureLoader()
 const earthTexture = textureLoader.load('/src/assets/8k_earth_daymap.jpg')
@@ -128,7 +136,7 @@ const zoomState = {
 
 window.addEventListener('wheel', (event) => {
   const scrollSpeed = 0.002
-  zoomState.target -= event.deltaY * scrollSpeed   // flipped: scroll down = zoom in
+  zoomState.target -= event.deltaY * scrollSpeed
   zoomState.target = THREE.MathUtils.clamp(zoomState.target, zoomState.min, zoomState.max)
 })
 
@@ -154,7 +162,6 @@ sunFolder.add(sunLight.position, 'z', -10, 10, 0.1)
 const ambientFolder = gui.addFolder('Ambient')
 ambientFolder.add(ambientLight, 'intensity', 0, 1, 0.01).name('Intensity')
 
-
 const cutawayFolder = gui.addFolder('Cutaway')
 const cutawaySettings = {
   cutStart: 3,
@@ -162,6 +169,7 @@ const cutawaySettings = {
 }
 cutawayFolder.add(cutawaySettings, 'cutStart', 1, 8, 0.1).name('Cut Start Distance')
 cutawayFolder.add(cutawaySettings, 'cutEnd', 0.1, 3, 0.1).name('Cut End Distance')
+
 const materialsFolder = gui.addFolder('Layer Materials')
 
 const earthMatFolder = materialsFolder.addFolder('Earth Surface')
@@ -185,7 +193,33 @@ window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight
   camera.updateProjectionMatrix()
   renderer.setSize(window.innerWidth, window.innerHeight)
+  labelRenderer.setSize(window.innerWidth, window.innerHeight)
 })
+
+function createLabel(text, className) {
+  const div = document.createElement('div')
+  div.className = className
+  div.textContent = text
+  return new CSS2DObject(div)
+}
+
+const mantleLabel = createLabel('Mantle', 'layer-label')
+mantle.add(mantleLabel)
+mantleLabel.position.set(0, 0.85, 0)
+
+const outerCoreLabel = createLabel('Outer Core', 'layer-label')
+outerCore.add(outerCoreLabel)
+outerCoreLabel.position.set(0, 0.55, 0)
+
+const innerCoreLabel = createLabel('Inner Core', 'layer-label')
+innerCore.add(innerCoreLabel)
+innerCoreLabel.position.set(0, 0.2, 0)
+
+const layerLabels = [
+  { object: mantleLabel, showAt: 0.15 },
+  { object: outerCoreLabel, showAt: 0.5 },
+  { object: innerCoreLabel, showAt: 0.8 },
+]
 
 function animate() {
   requestAnimationFrame(animate)
@@ -207,7 +241,13 @@ function animate() {
   )
   clipPlane.constant = THREE.MathUtils.lerp(1, -0.2, cutProgress)
 
+  layerLabels.forEach(({ object, showAt }) => {
+    const visible = cutProgress > showAt
+    object.element.style.opacity = visible ? '1' : '0'
+  })
+
   controls.update()
   renderer.render(scene, camera)
+  labelRenderer.render(scene, camera)
 }
 animate()
