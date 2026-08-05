@@ -21,9 +21,17 @@ renderer.localClippingEnabled = true
 
 const textureLoader = new THREE.TextureLoader()
 const earthTexture = textureLoader.load('/src/assets/8k_earth_daymap.jpg')
+const nightTexture = textureLoader.load('src/assets/8k_earth_nightmap.jpg')
+const starsTexture = textureLoader.load('src/assets/8k_stars_milky_way.jpg')
+scene.background = starsTexture
 
 const earthGeometry = new THREE.SphereGeometry(1, 64, 64)
-const earthMaterial = new THREE.MeshStandardMaterial({ map: earthTexture })
+const earthMaterial = new THREE.MeshStandardMaterial({
+  map: earthTexture,
+  emissiveMap: nightTexture,
+  emissive: new THREE.Color(0xffffff),
+  emissiveIntensity: 1.2,
+})
 const earth = new THREE.Mesh(earthGeometry, earthMaterial)
 
 const earthGroup = new THREE.Group()
@@ -98,7 +106,7 @@ const sunLight = new THREE.DirectionalLight(0xffffff, 2)
 sunLight.position.set(5, 3, 5)
 scene.add(sunLight)
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.15)
+const ambientLight = new THREE.AmbientLight(0xffffff, 0)
 scene.add(ambientLight)
 
 const controls = new OrbitControls(camera, renderer.domElement)
@@ -120,7 +128,7 @@ const zoomState = {
 
 window.addEventListener('wheel', (event) => {
   const scrollSpeed = 0.002
-  zoomState.target -= event.deltaY * scrollSpeed
+  zoomState.target -= event.deltaY * scrollSpeed   // flipped: scroll down = zoom in
   zoomState.target = THREE.MathUtils.clamp(zoomState.target, zoomState.min, zoomState.max)
 })
 
@@ -146,6 +154,7 @@ sunFolder.add(sunLight.position, 'z', -10, 10, 0.1)
 const ambientFolder = gui.addFolder('Ambient')
 ambientFolder.add(ambientLight, 'intensity', 0, 1, 0.01).name('Intensity')
 
+
 const cutawayFolder = gui.addFolder('Cutaway')
 const cutawaySettings = {
   cutStart: 3,
@@ -153,8 +162,10 @@ const cutawaySettings = {
 }
 cutawayFolder.add(cutawaySettings, 'cutStart', 1, 8, 0.1).name('Cut Start Distance')
 cutawayFolder.add(cutawaySettings, 'cutEnd', 0.1, 3, 0.1).name('Cut End Distance')
-
 const materialsFolder = gui.addFolder('Layer Materials')
+
+const earthMatFolder = materialsFolder.addFolder('Earth Surface')
+earthMatFolder.add(earthMaterial, 'emissiveIntensity', 0, 3, 0.01).name('Night Lights Intensity')
 
 const mantleMatFolder = materialsFolder.addFolder('Mantle')
 mantleMatFolder.add(mantleMaterial, 'roughness', 0, 1, 0.01)
