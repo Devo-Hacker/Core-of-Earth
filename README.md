@@ -10,18 +10,15 @@
 
 ---
 
-## 🎥 Live Preview
+## Preview
 
-*(Add your video demonstration here)*
+<img width="1920" height="888" alt="Screenshot (1803)" src="https://github.com/user-attachments/assets/1fe86d71-3ff0-4535-ac74-9cb03f8bbfd2" />
 
-<div align="center">
-  <video width="100%" controls autoplay loop muted>
-    <source src="src/assets/earther.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
-</div>
+<img width="1920" height="916" alt="Screenshot (1807)" src="https://github.com/user-attachments/assets/f16456dd-5ace-4ed3-8b8f-01a431b33699" />
 
 ---
+
+**Note** : scroll in order to see inside layers these are only few things to showcase on top
 
 ## ✨ Key Features
 
